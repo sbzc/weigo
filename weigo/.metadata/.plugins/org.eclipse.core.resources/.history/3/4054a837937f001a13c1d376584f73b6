@@ -1,0 +1,52 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>访问量图表</title>
+    <!-- 引入 echarts.js -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/echarts.min.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div >
+    <div id="main" style="width: 600px;height:400px;" ></div>
+    </div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+        $.ajax({
+			url:"/admin/visitor/list",
+			dataType:"json",
+			success:function(data){
+				console.log();
+				 var option = {
+				            title: {
+				                text: '微购商城页面访客表'
+				            },
+				            tooltip: {},
+				            legend: {
+				                data:['页面访客量']
+				            },
+				            xAxis: {
+				                data: ["后台主页","前台主页","搜索页面","购物车","商品详情"]
+				            },
+				            yAxis: {},
+				            series: [{
+				                name: '访客',
+				                type: 'bar',
+				                data: [data["managePage"],data["PortalPage"],data["searchPage"],data["cartPage"],data["itemdescPage"]]
+				            }]
+				        };
+
+				        // 使用刚指定的配置项和数据显示图表。
+				        myChart.setOption(option);		
+			}
+		});
+        // 指定图表的配置项和数据
+       
+    </script>
+</body>
+</html>

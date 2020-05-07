@@ -1,0 +1,5 @@
+package com.weigo.commons.utils;
+
+public class MyUserAgentUtils {
+
+}

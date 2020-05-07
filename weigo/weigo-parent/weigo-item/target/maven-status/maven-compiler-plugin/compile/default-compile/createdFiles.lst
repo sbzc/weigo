@@ -1,0 +1,10 @@
+com\weigo\item\controller\TbItemController.class
+com\weigo\item\controller\TbItemCatController.class
+com\weigo\item\service\TbItemService.class
+com\weigo\item\service\impl\TbItemCatServiceImpl.class
+com\weigo\item\service\TbItemDescService.class
+com\weigo\item\pojo\ItemCatMenu.class
+com\weigo\item\pojo\ItemCatMenuNode.class
+com\weigo\item\service\impl\TbItemServiceImpl.class
+com\weigo\item\service\TbItemCatService.class
+com\weigo\item\service\impl\TbItemDescServiceImpl.class

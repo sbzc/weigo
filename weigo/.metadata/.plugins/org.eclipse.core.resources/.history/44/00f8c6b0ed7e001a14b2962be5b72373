@@ -1,0 +1,18 @@
+package com.weigo.dubbo.visitor.service.impl;
+
+import java.util.Date;
+
+import com.github.pagehelper.PageInfo;
+import com.weigo.dubbo.visitor.service.TbVisitorDubboService;
+import com.weigo.pojo.TbItem;
+
+public class TbVisitorDubboServiceImpl implements TbVisitorDubboService {
+
+	@Override
+	public PageInfo<TbItem> getUserLoginList(String keyword, int pageSize, int pageNum, String sort, String sortOrder,
+			Date startDate, Date endDate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

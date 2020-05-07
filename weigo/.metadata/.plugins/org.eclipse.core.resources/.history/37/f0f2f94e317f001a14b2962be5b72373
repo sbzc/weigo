@@ -1,0 +1,143 @@
+package com.weigo.portal.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.stereotype.Service;
+
+import com.weigo.commons.pojo.ConstantObject;
+import com.weigo.commons.utils.JsonUtils;
+import com.weigo.dubbo.item.service.TbContentDubboService;
+import com.weigo.dubbo.item.service.TbItemCatDubboService;
+import com.weigo.dubbo.item.service.TbItemDubboService;
+import com.weigo.dubbo.user.service.TbUserDubboService;
+import com.weigo.pojo.TbContent;
+import com.weigo.pojo.TbItem;
+import com.weigo.pojo.TbItemCat;
+import com.weigo.pojo.TbUser;
+import com.weigo.pojo.TbUserItem;
+import com.weigo.portal.pojo.PortalMessage;
+import com.weigo.portal.service.TbItemCatService;
+@Service
+public class TbItemCatServiceImpl implements TbItemCatService {
+
+	@Autowired
+	private TbItemCatDubboService tbItemCatDubboService;
+	@Autowired
+	private TbContentDubboService tbContentDubboService;
+	@Autowired
+	private TbItemDubboService tbItemDubboService;
+	@Autowired
+	private TbUserDubboService tbUserDubboService;
+	
+	@Autowired
+	private RedisTemplate<String, String> redisTemplate;
+	@Override
+	public List<TbItemCat> selectTbItemCatByPid(int i) {
+		
+		List<TbItemCat> catByPid = tbItemCatDubboService.selectItemCatByPid(i);
+		for (TbItemCat tbItemCat : catByPid) {
+			List<TbItemCat> list = tbItemCatDubboService.selectItemCatByPid(tbItemCat.getId());
+			if(list!=null&&list.size()>0) {
+				tbItemCat.setChildTbItemCat(list);
+			}else {
+				tbItemCat.setChildTbItemCat(null);
+			}
+		}
+		
+		return catByPid;
+	}
+
+	@Override
+	public PortalMessage selectPortalMessag() {
+		
+		this.redisTemplate.setValueSerializer(new StringRedisSerializer());
+		if(this.redisTemplate.hasKey("portalMessage")) {
+			 String string = this.redisTemplate.opsForValue().get("portalMessage");
+			return JsonUtils.jsonToPojo(string, PortalMessage.class);
+		}
+		PortalMessage portalMessage = getPortalMessage();
+		
+		List<TbItem> items = tbItemDubboService.selectItemByCount(8);
+		
+		for (TbItem tbItem : items) {
+			
+			if(tbItem.getImage()!=null) {
+				tbItem.setImage(tbItem.getImage().split(",")[0]);
+			}
+			
+			
+			TbUserItem userItem = tbUserDubboService.selectUserItemByItemId(tbItem.getId());
+			if(userItem!=null) {
+				TbUser tbUser = tbUserDubboService.selectUserByUserId(userItem.getUid());
+				if(tbUser!=null)
+				tbItem.setUsername(tbUser.getUsername());
+			}
+		}
+		
+		portalMessage.setItems(items);
+		this.redisTemplate.setValueSerializer(new StringRedisSerializer());
+		this.redisTemplate.opsForValue().set("portalMessage",JsonUtils.objectToJson(portalMessage));
+		this.redisTemplate.expire("portalMessage", 1, TimeUnit.HOURS);
+		return portalMessage;
+		
+	}
+
+     private PortalMessage getPortalMessage() {
+	   PortalMessage portalMessage = new PortalMessage();
+	     List<TbItemCat> catByPid = tbItemCatDubboService.selectItemCatByPid(ConstantObject.itemCarRoot);
+		for (TbItemCat tbItemCat : catByPid) {
+			List<TbItemCat> list = tbItemCatDubboService.selectItemCatByPid(tbItemCat.getId());
+			if(list!=null&&list.size()>0) {
+				tbItemCat.setChildTbItemCat(list);
+			}else {
+				tbItemCat.setChildTbItemCat(null);
+			}
+		}
+		portalMessage.setCats(catByPid);
+		//´ó¹ã¸æ
+		List<TbContent> bigPics = tbContentDubboService.selectItemByCountAndCategoryId(5, ConstantObject.bigPics);
+		List<Map<String, Object>> bigPicsValue = new ArrayList<Map<String,Object>>();
+		for (TbContent tbContent : bigPics) {
+        Map<String,Object> map = new HashMap<>();
+			map.put("alt", tbContent.getTitle());
+			map.put("src", tbContent.getPic());
+			map.put("href", tbContent.getUrl());
+			bigPicsValue.add(map);
+			}
+		
+		List<TbContent> bigPicBlows = tbContentDubboService.selectItemByCountAndCategoryId(2, ConstantObject.bigPicBlows);
+		List<Map<String, Object>> bigPicBlowsValue = new ArrayList<Map<String,Object>>();
+		for (TbContent tbContent : bigPicBlows) {
+			Map<String,Object> map = new HashMap<>();
+			map.put("alt", tbContent.getTitle());
+			map.put("src", tbContent.getPic());
+			map.put("href", tbContent.getUrl());
+			bigPicBlowsValue.add(map);
+		}
+		
+		List<TbContent> hostItemPicBlows = tbContentDubboService.selectItemByCountAndCategoryId(2, ConstantObject.hostItemPicBlows);
+		List<Map<String, Object>> hostItemPicBlowsValue = new ArrayList<Map<String,Object>>();
+		for (TbContent tbContent : hostItemPicBlows) {
+			Map<String,Object> map = new HashMap<>();
+			map.put("alt", tbContent.getTitle());
+			map.put("src", tbContent.getPic());
+			map.put("href", tbContent.getUrl());
+			hostItemPicBlowsValue.add(map);
+		}
+		portalMessage.setBigPics(bigPicsValue);
+		portalMessage.setBigPicBolws(bigPicBlowsValue);
+		portalMessage.setHostItemBolws(hostItemPicBlowsValue);
+		
+		
+		
+		return portalMessage;
+ }
+}

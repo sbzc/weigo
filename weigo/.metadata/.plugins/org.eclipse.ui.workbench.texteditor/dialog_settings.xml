@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item key="wrap" value="true"/>
+		<item key="casesensitive" value="true"/>
+		<item key="wholeword" value="false"/>
+		<item key="incremental" value="false"/>
+		<item key="isRegEx" value="false"/>
+		<item key="selection" value="item.price"/>
+		<list key="findhistory">
+			<item value="item.price"/>
+			<item value="price"/>
+			<item value="100"/>
+			<item value="System.out"/>
+			<item value="localhost"/>
+			<item value="favicon.ico"/>
+			<item value="Sys"/>
+			<item value="sys"/>
+			<item value="rel=&quot;icon&quot;"/>
+			<item value="image/x-icon"/>
+			<item value="user_edit"/>
+			<item value="myselfinfo"/>
+			<item value="goTo"/>
+			<item value="magnificPopup"/>
+			<item value="large-image"/>
+		</list>
+		<list key="replacehistory">
+			<item value="47.103.218.192"/>
+			<item value="item"/>
+			<item value="微购"/>
+			<item value="TbPermission"/>
+			<item value="tbRoleService"/>
+			<item value="TbRole"/>
+			<item value="你没有该订单操作权限"/>
+			<item value="shippingMessage"/>
+			<item value="oderItemList"/>
+			<item value="address"/>
+			<item value="tbOrderService"/>
+			<item value="setCode(1)"/>
+			<item value="redisTemplate.opsForValue()"/>
+			<item value="setMsg"/>
+			<item value="setCode(0)"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="45"/>
+		<item key="DIALOG_Y_ORIGIN" value="217"/>
+		<item key="DIALOG_WIDTH" value="300"/>
+		<item key="DIALOG_HEIGHT" value="394"/>
+		<item key="DIALOG_FONT_NAME" value="1|Microsoft YaHei UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Microsoft YaHei UI"/>
+	</section>
+</section>

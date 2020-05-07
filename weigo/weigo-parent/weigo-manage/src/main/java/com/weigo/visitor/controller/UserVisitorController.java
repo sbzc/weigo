@@ -1,0 +1,12 @@
+package com.weigo.visitor.controller;
+
+
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class UserVisitorController {
+
+	
+	
+	
+}

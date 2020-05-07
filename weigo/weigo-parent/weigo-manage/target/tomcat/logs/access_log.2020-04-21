@@ -1,0 +1,2 @@
+0:0:0:0:0:0:0:1 - - [21/Apr/2020:11:50:41 +0800] "GET /manage/itemAddChart HTTP/1.1" 200 1044 http-bio-8080-exec-1 1228
+0:0:0:0:0:0:0:1 - - [21/Apr/2020:11:50:45 +0800] "GET /item/add/chartMessage?qDate= HTTP/1.1" 200 284 http-bio-8080-exec-2 4235

@@ -1,0 +1,259 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>访问量图表</title>
+    <!-- 引入 echarts.js -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/echarts.min.js"></script>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div style="padding-top: 10px">
+    </div>
+    <div style="width: 55%;float: left;">
+    <div id="zhuxingtu" style="width: 100%;height:400px;" ></div>
+    </div>
+    <div style="width: 44%;float: left;">
+    <div id="bintu" style="width: 100%;height:400px;" ></div>
+    </div>
+    <div align="center">
+                                        选择日期：<input type="date" id="selectDate">&nbsp;<button onclick="showChar()">查看</button>
+    </div>
+      <div style="width: 100%; float: left; padding-left: 10%" >
+    <div id="duizhexiangtu" style="width: 80%;height:400px;" ></div>
+    </div>
+    <div style="width: 200px">
+          图
+    </div>
+    <div >
+    <div id="main" style="width: 700px;height:400px;" ></div>
+    </div>
+    <script type="text/javascript">
+    
+    $(function () {
+    	showChar();
+	});
+    
+        // 基于准备好的dom，初始化echarts实例
+      function showChar() {
+        	var date = $("#selectDate").val();
+    	  var myChartzhu = echarts.init(document.getElementById('zhuxingtu'));
+          var myChartbin = echarts.init(document.getElementById('bintu'));
+          var myChartduizhe = echarts.init(document.getElementById('duizhexiangtu'));
+          var myChartzhe = echarts.init(document.getElementById('zhexiangtu'));
+          $.ajax({
+  			url:"/admin/visitor/page",
+  			dataType:"json",
+  			data:{"qDate":date},
+  			success:function(data){
+  				var keyArr=[];
+  				var valueArr=[];
+  				//折线图的x轴名
+  				var keyZheName=[];
+  				var valueZheArry=[];
+  				console.log(data);
+  				var visitorMessage = data[0].values;
+  				var len=visitorMessage.length;
+  				for(var i =0;i<len;i++){
+  					keyArr[i]=visitorMessage[i].namePage;
+  					valueArr[i]=visitorMessage[i].count;
+  				}
+  				
+  				for(var i=0;i<len;i++){
+  					var valueTmpi = [];
+  					for(j=1;j<data.length;j++){
+  						valueTmpi[j-1] = data[j].values[i].count;
+  					}
+  					var valueZheArrTmp={};
+  					valueZheArrTmp["name"]=keyArr[i];
+  					valueZheArrTmp["type"]="line";
+  					valueZheArrTmp["stack"]="总量";
+  					valueZheArrTmp["areaStyle"]= "{}",
+  					 
+  					valueZheArrTmp["data"]=valueTmpi;
+  					valueZheArry[i]=valueZheArrTmp;
+  				}
+  				
+  				
+  				
+  				for(var i =1;i<data.length;i++){
+  					keyZheName[i-1]=data[i].keyname;
+  				}
+  				
+  				
+  				
+  				
+  				  var optionzhu = {
+  				            title: {
+  				                text: '微购商城页面访问表'
+  				            },
+  				            tooltip: {},
+  				            legend: {
+  				                data:['页面访客量']
+  				            },
+  				            xAxis: {
+  				            	  type: 'category',
+  				                  data:keyArr
+  				            },
+  				            yAxis: {
+  				            	 type: 'value'
+  				            },
+  				            series: [{
+  				                name: '访客',
+  				                type: 'bar',
+  				                data: valueArr
+  				            }]
+  				        };
+  				var optionbin = {
+  			        	    title: {
+  			        	        text: '微购商城页面访问饼图',
+  			        	        subtext: '',
+  			        	        left: 'center'
+  			        	    },
+  			        	    tooltip: {
+  			        	        trigger: 'item',
+  			        	        formatter: '{a} <br/>{b} : {c} ({d}%)'
+  			        	    },
+  			        	    legend: {
+  			        	        orient: 'vertical',
+  			        	        left: 'left',
+  			        	        data:  keyArr
+  			        	    },
+  			        	    series: [
+  			        	        {
+  			        	            name: '页面访问量',
+  			        	            type: 'pie',
+  			        	            radius: '55%',
+  			        	            center: ['50%', '60%'],
+  			        	            data: [
+  			        	                {value: valueArr[0], name:keyArr[0]},
+  			        	                {value: valueArr[1], name:keyArr[1]},
+  			        	                {value: valueArr[2], name:keyArr[2]},
+  			        	                {value: valueArr[3], name:keyArr[3]},
+  			        	                {value: valueArr[4], name:keyArr[4]},
+  			        	                {value: valueArr[5], name:keyArr[5]}
+  			        	                
+  			        	            ],
+  			        	            emphasis: {
+  			        	                itemStyle: {
+  			        	                    shadowBlur: 10,
+  			        	                    shadowOffsetX: 0,
+  			        	                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+  			        	                }
+  			        	            }
+  			        	        }
+  			        	    ]
+  			        	};
+  				var  optionduizhe = {
+  			        	    title: {
+  			        	        text: '折线图'
+  			        	    },
+  			        	  tooltip: {
+  			                trigger: 'axis',
+  			                axisPointer: {
+  			                    type: 'cross',
+  			                    label: {
+  			                        backgroundColor: '#6a7985'
+  			                    }
+  			                }
+  			            },
+  			        	    legend: {
+  			        	        data: keyArr
+  			        	    },
+  			        	    grid: {
+  			        	        left: '3%',
+  			        	        right: '4%',
+  			        	        bottom: '3%',
+  			        	        containLabel: true
+  			        	    },
+  			        	    toolbox: {
+  			        	        feature: {
+  			        	            saveAsImage: {}
+  			        	        }
+  			        	    },
+  			        	    xAxis: {
+  			        	        type: 'category',
+  			        	        boundaryGap: false,
+  			        	        data: keyZheName
+  			        	    },
+  			        	    yAxis: {
+  			        	        type: 'value'
+  			        	    },
+  			        	    series: valueZheArry
+  			        	};
+  				var optionzhe = {
+  				        legend: {},
+  				        tooltip: {
+  				            trigger: 'axis',
+  				            showContent: false
+  				        },
+  				        dataset: {
+  				            source: [
+  				                ['product', '2012', '2013', '2014', '2015', '2016', '2017'],
+  				                ['Matcha Latte', 41.1, 30.4, 65.1, 53.3, 83.8, 98.7],
+  				                ['Milk Tea', 86.5, 92.1, 85.7, 83.1, 73.4, 55.1],
+  				                ['Cheese Cocoa', 24.1, 67.2, 79.5, 86.4, 65.2, 82.5],
+  				                ['Walnut Brownie', 55.2, 67.1, 69.2, 72.4, 53.9, 39.1]
+  				            ]
+  				        },
+  				        xAxis: {type: 'category'},
+  				        yAxis: {gridIndex: 0},
+  				        grid: {top: '55%'},
+  				        series: [
+  				            {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+  				            {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+  				            {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+  				            {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+  				            {
+  				                type: 'pie',
+  				                id: 'pie',
+  				                radius: '30%',
+  				                center: ['50%', '25%'],
+  				                label: {
+  				                    formatter: '{b}: {@2012} ({d}%)'
+  				                },
+  				                encode: {
+  				                    itemName: 'product',
+  				                    value: '2012',
+  				                    tooltip: '2012'
+  				                }
+  				            }
+  				        ]
+  				    };
+
+  				myChartzhe.on('updateAxisPointer', function (event) {
+  				        var xAxisInfo = event.axesInfo[0];
+  				        if (xAxisInfo) {
+  				            var dimension = xAxisInfo.value + 1;
+  				            myChart.setOption({
+  				                series: {
+  				                    id: 'pie',
+  				                    label: {
+  				                        formatter: '{b}: {@[' + dimension + ']} ({d}%)'
+  				                    },
+  				                    encode: {
+  				                        value: dimension,
+  				                        tooltip: dimension
+  				                    }
+  				                }
+  				            });
+  				        }
+  				    });
+
+  				 
+  				        // 使用刚指定的配置项和数据显示图表。
+  				          myChartzhu.setOption(optionzhu);
+  				       myChartbin.setOption(optionbin); 
+  				        myChartduizhe.setOption(optionduizhe); 
+  				        myChartzhe.setOption(optionzhe); 
+  			}
+  		});
+          // 指定图表的配置项和数据
+	}
+       
+    </script>
+</body>
+</html>

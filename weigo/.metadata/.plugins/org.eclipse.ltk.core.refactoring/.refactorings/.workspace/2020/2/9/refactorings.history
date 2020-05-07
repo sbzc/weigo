@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete resource &apos;weigo-service-impl&apos;" deleteContents="true" description="Delete resource &apos;weigo-service-impl&apos;" element1="/weigo-service-impl" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1582426043880"/>&#x0A;<refactoring comment="Delete resource &apos;weigo-service&apos;" deleteContents="true" description="Delete resource &apos;weigo-service&apos;" element1="/weigo-service" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1582426050440"/>
+</session>

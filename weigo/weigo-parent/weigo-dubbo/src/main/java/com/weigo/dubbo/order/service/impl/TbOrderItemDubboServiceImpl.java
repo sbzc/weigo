@@ -1,0 +1,88 @@
+package com.weigo.dubbo.order.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.weigo.commons.pojo.ConstantObject;
+import com.weigo.dubbo.order.service.TbOrderItemDubboService;
+import com.weigo.mapper.TbOrderItemMapper;
+import com.weigo.mapper.TbOrderShippingMapper;
+import com.weigo.pojo.TbOrderItem;
+import com.weigo.pojo.TbOrderItemExample;
+import com.weigo.pojo.TbOrderItemExample.Criteria;
+import com.weigo.pojo.TbOrderShipping;
+@Service
+public class TbOrderItemDubboServiceImpl implements TbOrderItemDubboService {
+
+	@Autowired
+	private TbOrderItemMapper tbOrderItemMapper;
+	@Autowired
+	private TbOrderShippingMapper tbOrderShippingMapper;
+	@Override
+	public List<TbOrderItem> showOrderItemByclientId(Long id) {
+		TbOrderItemExample example = new TbOrderItemExample();
+		example.createCriteria().andClientIdEqualTo(id);
+		example.setOrderByClause("updated desc");
+		return tbOrderItemMapper.selectByExample(example );
+	}
+	@Override
+	public TbOrderItem selectOredrItemByOrderItemId(String id) {
+		
+		return tbOrderItemMapper.selectByPrimaryKey(id);
+	}
+	@Override
+	public int updateOrderItemByTbOrderItem(TbOrderItem tbOrderItem) {
+		return tbOrderItemMapper.updateByPrimaryKeySelective(tbOrderItem);
+	}
+	@Override
+	public List<TbOrderItem> selectOrderItemBySellerId(Long id) {
+		TbOrderItemExample example = new TbOrderItemExample();
+		example.createCriteria().andSellerIdEqualTo(id);
+		example.setOrderByClause("updated desc");
+		return tbOrderItemMapper.selectByExample(example );
+	}
+	@Override
+	public int updateLogisticsByTbOrderItemAndOrderShipping(TbOrderItem tbOrderItem, TbOrderShipping tbOrderShipping) throws Exception  {
+		
+		int row=0;
+		try {
+			row = tbOrderItemMapper.updateByPrimaryKeySelective(tbOrderItem);
+			row +=tbOrderShippingMapper.updateByPrimaryKeySelective(tbOrderShipping);
+		} catch (Exception e) {
+		}
+		
+		if(row==2) {
+			return 1;
+		}else {
+			 throw new java.lang.Exception("ÏµÍ³³ö´í");
+		}
+	
+	}
+	@Override
+	public Long selectPendingClientOrderItemByClientId(Long id) {
+		TbOrderItemExample example = new TbOrderItemExample();
+		example.createCriteria().andClientIdEqualTo(id).andBuyerRateEqualTo(0);
+		return this.tbOrderItemMapper.countByExample(example);
+	}
+	@Override
+	public Long selectPendingSellerOrderItemBySellerId(Long id) {
+		TbOrderItemExample example = new TbOrderItemExample();
+		example.createCriteria().andSellerIdEqualTo(id).andStatusEqualTo(ConstantObject.resetOrderItem);
+		return this.tbOrderItemMapper.countByExample(example );
+	}
+	@Override
+	public Long selectOredrItemCountByStatus(Date startDate,Date endDate,Integer integer) {
+		
+		TbOrderItemExample example = new TbOrderItemExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andStatusEqualTo(integer);
+		if(startDate!=null) {
+			criteria.andUpdatedGreaterThanOrEqualTo(startDate).andUpdatedLessThanOrEqualTo(endDate);
+		}
+		return tbOrderItemMapper.countByExample(example );
+	}
+
+}

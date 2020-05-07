@@ -1,0 +1,157 @@
+package com.weigo.dubbo.user.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.weigo.dubbo.user.service.TbUserDubboService;
+import com.weigo.mapper.TbUserItemMapper;
+import com.weigo.mapper.TbUserMapper;
+import com.weigo.pojo.TbUser;
+import com.weigo.pojo.TbUserExample;
+import com.weigo.pojo.TbUserItem;
+import com.weigo.pojo.TbUserItemExample;
+@Service
+public class TbUserDubboServiceImpl implements TbUserDubboService{
+    
+	@Autowired
+	private TbUserMapper tbUserMapper;
+	@Autowired
+	private TbUserItemMapper tbUserItemMapper;
+	@Override
+	public TbUser selectUserByUsername(String username) {
+		
+		TbUserExample example = new TbUserExample();
+		example.createCriteria().andUsernameEqualTo(username);
+		List<TbUser> list = tbUserMapper.selectByExample(example );
+		if(list.size()>0) {
+			return list.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public TbUserItem selectUserItemByItemId(Long id) {
+		TbUserItemExample example = new TbUserItemExample();
+		example.createCriteria().andItemidEqualTo(id);
+		List<TbUserItem> list = tbUserItemMapper.selectByExample(example);
+		if(list.size()>0) {
+			return list.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public TbUser selectUserByUserId(Long id) {
+		return tbUserMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public PageInfo<TbUser> selectTbUserByKeyword(String keyword, int pageSize, int pageNum, String sort,
+			String sortOrder) {
+		PageHelper.startPage(pageNum, pageSize);
+		TbUserExample example = new TbUserExample();
+		example.createCriteria().andUsernameLike("%"+keyword+"%");
+		example.setOrderByClause(sort+" "+sortOrder);
+		List<TbUser> list = tbUserMapper.selectByExample(example );
+		PageInfo<TbUser> info = new PageInfo<TbUser>(list);
+		return info;
+	}
+
+	@Override
+	public int insertUserByTbUser(TbUser tbUser) throws Exception{
+		return tbUserMapper.insert(tbUser);
+	}
+
+	@Override
+	public TbUser selectUserById(Long id) {
+		
+		return tbUserMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public int updateUserByTbUser(TbUser tbUser) {
+		
+		return tbUserMapper.updateByPrimaryKeySelective(tbUser);
+	}
+
+	@Override
+	public int updateUserByIdsAndStatus(String ids, Integer status) throws Exception {
+		int row=0;
+		String[] idsStr = ids.split(",");
+		try {
+	   Date date = new Date();
+		for (String id : idsStr) {
+			TbUser tbUser = new TbUser();
+			tbUser.setUpdated(date);
+			tbUser.setId(Long.parseLong(id));
+			tbUser.setStatus(status);
+			row+=tbUserMapper.updateByPrimaryKeySelective(tbUser );
+		}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		if(row==idsStr.length) {
+			return 1;
+		}else {
+			throw new Exception("系统出错了");
+		}
+		
+	}
+
+	@Override
+	public List<TbUserItem> selectUserItemByUserId(Long uid) {
+		TbUserItemExample example = new TbUserItemExample();
+		example.createCriteria().andUidEqualTo(uid);
+		return tbUserItemMapper.selectByExample(example );
+	}
+
+	@Override
+	public List<TbUser> selectUserByAll() {
+		return tbUserMapper.selectByExample(new TbUserExample());
+	}
+
+	@Override
+	public List<TbUser> selectUserByPhone(String phone) {
+		TbUserExample example = new TbUserExample();
+		example.createCriteria().andPhoneEqualTo(phone);
+		return tbUserMapper.selectByExample(example );
+	}
+
+	@Override
+	public List<TbUser> selectUserByEmail(String email) {
+		TbUserExample example = new TbUserExample();
+		example.createCriteria().andEmailEqualTo(email);
+		return this.tbUserMapper.selectByExample(example );
+	}
+
+	@Override
+	public TbUser selectTbUserByRoleId(Long roleId) {
+		
+		TbUserExample example = new TbUserExample();
+		example.createCriteria().andRoleIdEqualTo(roleId).andStatusEqualTo(1);
+		example.setOrderByClause("updated desc");
+		return tbUserMapper.selectByExample(example ).get(0);
+	}
+
+	@Override
+	public Long selectUserCountByRoleId(Long roleId) {
+		TbUserExample example = new TbUserExample();
+		example.createCriteria().andRoleIdEqualTo(roleId);
+		return tbUserMapper.countByExample(example );
+	}
+
+	@Override
+	public Long selectUserChartMessage(Date time) {
+		
+		TbUserExample example = new TbUserExample();
+		example.createCriteria().andCreatedEqualTo(time);
+		System.out.println("dubbo"+time);
+		return tbUserMapper.countByExample(example);
+	}
+
+}

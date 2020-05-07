@@ -1,0 +1,8 @@
+package com.weigo.commons.pojo;
+
+import java.util.List;
+
+public class VisitorPage {
+  private String keyname;
+  private List<VisitorPage> values;
+}

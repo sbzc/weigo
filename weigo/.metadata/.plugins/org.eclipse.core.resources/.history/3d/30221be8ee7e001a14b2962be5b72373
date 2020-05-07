@@ -1,0 +1,32 @@
+package com.weigo.dubbo.visitor.service.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.weigo.dubbo.visitor.service.TbVisitorDubboService;
+import com.weigo.mapper.TbUserLoginMapper;
+import com.weigo.pojo.TbUserLogin;
+import com.weigo.pojo.TbUserLoginExample;
+@Service
+public class TbVisitorDubboServiceImpl implements TbVisitorDubboService {
+    @Autowired
+	private TbUserLoginMapper tbUserLoginMapper;
+	
+	@Override
+	public PageInfo<TbUserLogin> getUserLoginList(String keyword, int pageSize, int pageNum, String sort, String sortOrder,
+			Date startDate, Date endDate) {
+	      PageHelper.startPage(pageNum, pageSize);
+	
+	      TbUserLoginExample example = new TbUserLoginExample();
+	      
+		List<TbUserLogin> tbUserlogins = tbUserLoginMapper.selectByExample(example );
+	     PageInfo<TbUserLogin> pageInfo = new PageInfo<TbUserLogin>(tbUserlogins);
+		return pageInfo;
+	}
+
+}

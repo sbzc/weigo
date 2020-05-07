@@ -1,0 +1,5 @@
+package com.weigo.dubbo.visitor.service;
+
+public interface TbVisitorDubboService {
+
+}

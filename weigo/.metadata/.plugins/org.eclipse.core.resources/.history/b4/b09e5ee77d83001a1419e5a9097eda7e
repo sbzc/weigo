@@ -1,0 +1,240 @@
+package com.weigo.item.service.impl;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import org.apache.shiro.SecurityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageInfo;
+import com.weigo.commons.pojo.VisitorPage;
+import com.weigo.commons.pojo.VisitorPageMessage;
+import com.weigo.commons.utils.HttpClientUtil;
+import com.weigo.commons.utils.IDUtils;
+import com.weigo.commons.utils.JsonUtils;
+import com.weigo.dubbo.item.service.TbItemCatDubboService;
+import com.weigo.dubbo.item.service.TbItemDescDubboService;
+import com.weigo.dubbo.item.service.TbItemDubboService;
+import com.weigo.dubbo.user.service.TbUserDubboService;
+import com.weigo.item.service.TbItemService;
+import com.weigo.pojo.TbItem;
+import com.weigo.pojo.TbItemCat;
+import com.weigo.pojo.TbItemDesc;
+import com.weigo.pojo.TbUser;
+import com.weigo.pojo.TbUserItem;
+@Service
+public class TbItemServiceImpl implements TbItemService {
+    @Autowired
+	private TbItemDubboService tbItemDubboService;
+    @Autowired
+    private TbItemCatDubboService tbItemCatDubboService;
+    @Autowired
+    private TbItemDescDubboService tbItemDescDubboService;
+    @Autowired
+   private TbUserDubboService tbUserDubboService;
+    
+	@Override
+	public PageInfo<TbItem> selectItemByAll(String keyword, int pageSize, int pageNum,String sort,String sortOrder) {
+        if(sort.equals("statusStr")) {
+        	sort="status";
+        }else if(sort.equals("cidStr")) {
+        	sort="cid";
+        }
+		PageInfo<TbItem> pageInfo = tbItemDubboService.selectTbItemAll(keyword,pageSize,pageNum,sort,sortOrder);
+		
+	  List<TbItem> list = pageInfo.getList();
+	  for (TbItem tbItem : list) {  
+		 
+		  TbUserItem tbUserItem = tbUserDubboService.selectUserItemByItemId(tbItem.getId());
+		  TbUser user = tbUserDubboService.selectUserByUserId(tbUserItem.getUid());
+		  tbItem.setUsername(user.getUsername());
+		  tbItem.setPrice(tbItem.getPrice()/100);
+		if(tbItem.getStatus()==1) {
+			tbItem.setStatusStr("上架");
+		}else {
+			tbItem.setStatusStr("下架");
+		}
+		if(tbItemCatDubboService.selectCatNameById(tbItem.getCid())==null) {
+			tbItem.setCidStr("其他");
+		}else
+		tbItem.setCidStr(tbItemCatDubboService.selectCatNameById(tbItem.getCid()).getName());
+	}
+		
+		return pageInfo;
+	}
+	@Override
+	public int deleteItemByIds(String ids) {
+		int row=this.tbItemDubboService.deleteItemByIds(ids);
+		
+		if(row==1) {
+		
+		new Thread() {
+			public void run() {
+				 HttpClientUtil.doPost("http://47.103.218.192:8083/solr/delete?ids="+ids);
+			};
+		}.start();
+		}
+		return row;
+	}
+	@Override
+	public int updateItemByTbItem(String ids,int status) {
+		 
+		if(status==0) {
+			new Thread() {
+				public void run() {
+					 HttpClientUtil.doPost("http://47.103.218.192:8083/solr/delete?ids="+ids);
+				};
+			}.start();
+			     
+		}else if(status==1) {
+			new Thread() {
+				public void run() {
+					 HttpClientUtil.doPost("http://47.103.218.192:8083/solr/insertItems?ids="+ids);
+				};
+			}.start();
+		}
+		
+		
+		return this.tbItemDubboService.updateItemByTbItem(ids,status);
+	}
+	@Override
+	public int insertItemByItemAndDesc(TbItem item, String desc) {
+		Date date = new Date();
+		long id = IDUtils.genItemId();
+		item.setId(id);
+		item.setUpdated(date);
+		item.setCreated(date);
+		item.setStatus((byte) 1);
+		if(item.getCid()==null) {
+			item.setCid((long) 3);
+		}
+		
+		
+		TbItemDesc tbItemDesc = new TbItemDesc();
+		tbItemDesc.setItemId(id);
+		tbItemDesc.setItemDesc(desc);
+		tbItemDesc.setCreated(date);
+		tbItemDesc.setUpdated(date);
+		
+		Object principalObj = SecurityUtils.getSubject().getPrincipal();
+		TbUser principal = (TbUser) principalObj;
+		
+		int ok = tbItemDubboService.insertItemByItemAndTbItemDesc(item,tbItemDesc,principal.getId());
+		final TbItem itemFinal = item;
+		new Thread() {
+			public void run() {
+				HttpClientUtil.doPostJson("http://47.103.218.192:8083/solr/insert", JsonUtils.objectToJson(itemFinal));
+			};
+		}.start();
+		return ok;
+	}
+	@Override
+	public TbItem selectItemById(long id) {
+		TbItem item=tbItemDubboService.selectTbItemById(id);
+		item.setDesc(this.tbItemDescDubboService.selectTbItemDescById(id).getItemDesc());
+        if(this.tbItemCatDubboService.selectCatNameById(item.getCid())==null) {
+        	item.setCidStr("其他");
+        }else
+		item.setCidStr(this.tbItemCatDubboService.selectCatNameById(item.getCid()).getName());
+		item.setImages(item.getImage().split(","));
+		item.setPrice(item.getPrice()/100);
+		return item;
+	}
+	@Override
+	public int restUpdateItem(TbItem item) {
+		Date date = new Date();
+		item.setUpdated(date);
+		TbItemDesc tbItemDesc = new TbItemDesc();
+		tbItemDesc.setUpdated(date);
+		tbItemDesc.setItemDesc(item.getDesc());
+		tbItemDesc.setItemId(item.getId());
+		
+		
+		final TbItem itemFinal = item;
+		new Thread() {
+			public void run() {
+				HttpClientUtil.doPostJson("http://47.103.218.192:8083/solr/insert", JsonUtils.objectToJson(itemFinal));
+			};
+		}.start();
+		
+		return this.tbItemDubboService.restUpdateItemByItemAndTbitemDesc(item,tbItemDesc);
+	}
+	@Override
+	public PageInfo<TbItem> selectItemByUid(String keyword, int pageSize, int pageNum, String sort, String sortOrder,
+			String username) {
+		
+		if(username.equals("")) {
+			return selectItemByAll(keyword, pageSize, pageNum, sort, sortOrder);
+		}
+		TbUser user = tbUserDubboService.selectUserByUsername(username);
+		if(user==null) {
+			return null;
+		}
+		List<TbUserItem> tbUserItems=tbUserDubboService.selectUserItemByUserId(user.getId());
+		List<Long> ids = new ArrayList<Long>();
+		for (TbUserItem tbUserItem : tbUserItems) {
+			ids.add(tbUserItem.getItemid());
+		}
+		
+         if(sort.equals("statusStr")) {
+         	sort="status";
+         }else if(sort.equals("cidStr")) {
+         	sort="cid";
+         }
+ 		PageInfo<TbItem> pageInfo = tbItemDubboService.selectItemByItemIds(ids,keyword,pageSize,pageNum,sort,sortOrder);
+ 		if(pageInfo==null) {
+ 			return null;
+ 		}
+ 	  List<TbItem> list = pageInfo.getList();
+ 	  for (TbItem tbItem : list) {  
+ 		  tbItem.setPrice(tbItem.getPrice()/100);
+ 		 tbItem.setUsername(user.getUsername());
+ 		if(tbItem.getStatus()==1) {
+ 			tbItem.setStatusStr("上架");
+ 		}else {
+ 			tbItem.setStatusStr("下架");
+ 		}
+ 		TbItemCat tbItemCat = tbItemCatDubboService.selectCatNameById(tbItem.getCid());
+ 		if(tbItemCat==null) {
+ 			tbItem.setCidStr("其他");
+ 		}else {
+ 			
+ 			tbItem.setCidStr(tbItemCat.getName());
+ 		}
+ 	}
+ 		
+ 		return pageInfo;
+	}
+	@Override
+	public VisitorPage selectItemAddCharMessageByDate(Date date) {
+		
+		VisitorPage visitorPage = new VisitorPage();
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH)-7);
+		
+		
+		
+		List<VisitorPageMessage> visitorsTmp = new ArrayList<VisitorPageMessage>();
+		for(int i=0;i<7;i++) {
+			
+			String key = calendar.get(Calendar.MONDAY)+1+"月"+calendar.get(Calendar.DAY_OF_MONTH)+"日";
+			VisitorPageMessage v = new VisitorPageMessage();
+			Long count = tbItemDubboService.selectItemAddCharMessageByDate(calendar.getTime());
+			v.setCount(count);
+			v.setNamePage(key);
+			visitorsTmp.add(v);
+			calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH)+1);
+		}
+		visitorPage.setValues(visitorsTmp);
+		return visitorPage;
+	}
+	
+}

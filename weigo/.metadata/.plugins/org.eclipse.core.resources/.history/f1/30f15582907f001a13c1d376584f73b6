@@ -1,0 +1,11 @@
+package com.weigo.visitor.service;
+
+import java.util.Map;
+
+public interface TbVisitorService {
+
+	void insertVisitor(String managepage);
+
+	Map<String, Long> selectVisitorConunt();
+
+}

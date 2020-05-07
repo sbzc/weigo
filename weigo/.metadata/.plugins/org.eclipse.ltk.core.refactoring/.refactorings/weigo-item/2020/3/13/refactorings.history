@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;Email_Authenticator.java&apos; to &apos;weigo-mail/src/main/java/com.weigo.mail.email&apos;&#x0D;&#x0A;- Original project: &apos;weigo-item&apos;&#x0D;&#x0A;- Destination element: &apos;weigo-mail/src/main/java/com.weigo.mail.email&apos;&#x0D;&#x0A;- Original element: &apos;com.weigo.email.demo.Email_Authenticator.java&apos;" description="Copy compilation unit" destination="=weigo-mail/src\/main\/java&lt;com.weigo.mail.email" element1="/src\/main\/java&lt;com.weigo.email.demo{Email_Authenticator.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1585194260419" units="1" version="1.0"/>
+</session>

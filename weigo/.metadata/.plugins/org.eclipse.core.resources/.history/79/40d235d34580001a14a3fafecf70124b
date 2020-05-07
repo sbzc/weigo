@@ -1,0 +1,63 @@
+package com.weigo.user.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageInfo;
+import com.weigo.commons.pojo.VisitorPage;
+import com.weigo.dubbo.user.service.TbRoleDubboService;
+import com.weigo.dubbo.user.service.TbUserDubboService;
+import com.weigo.pojo.TbRole;
+import com.weigo.user.service.TbRoleService;
+@Service
+public class TbRoleServiceImpl implements TbRoleService {
+	@Autowired
+    private TbRoleDubboService tbRoleDubboService;
+	@Autowired
+	private TbUserDubboService tbUserDubboService;
+	@Override
+	public List<TbRole> selectTbRoleByAll() {
+		return tbRoleDubboService.selectRoleByAll();
+	}
+	
+	@Override
+	public PageInfo<TbRole> getPageInfo(String keyword, int pageNum, int pageSize) {
+		
+		return tbRoleDubboService.getPageInfo(keyword, pageNum, pageSize);
+	}
+	@Override
+	public int deleteTbRoleById(Long roleId) {
+		return tbRoleDubboService.deleteTbRoleById(roleId);
+	}
+	@Override
+	public TbRole selectTbRoleById(Long roleId) {
+		return tbRoleDubboService.selectTbRoleById(roleId);
+	}
+	@Override
+	public int insertTbRoleBySelective(TbRole role) {
+		return tbRoleDubboService.insertTbRoleBySelective(role);
+	}
+	@Override
+	public int updeteTbRoleBySelective(TbRole role) {
+		return tbRoleDubboService.updeteTbRoleBySelective(role);
+	}
+	@Override
+	public TbRole selectTbRolePermissionByTbRoleId(Long roleId) {
+		return tbRoleDubboService.selectTbRolePermissionByTbRoleId(roleId);
+	}
+
+	@Override
+	public VisitorPage selectRoleChartMessage() {
+		
+		List<TbRole> roles = tbRoleDubboService.selectRoleByAll();
+		for (TbRole tbRole : roles) {
+			
+			tbRoleDubboService.selectUserCountByRoleId();
+		}
+		
+		return ;
+	}
+   
+}

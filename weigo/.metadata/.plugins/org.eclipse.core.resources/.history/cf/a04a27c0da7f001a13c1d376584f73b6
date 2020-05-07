@@ -1,0 +1,42 @@
+package com.weigo.visitor.service.impl;
+
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageInfo;
+import com.weigo.commons.pojo.MessageObject;
+import com.weigo.commons.pojo.VisitorPage;
+import com.weigo.dubbo.visitor.service.TbUserLoginDubboService;
+import com.weigo.pojo.TbUserLogin;
+import com.weigo.visitor.service.TbUserLoginService;
+@Service
+public class TbUserLoginServiceImpl implements TbUserLoginService {
+    @Autowired
+     private TbUserLoginDubboService tbUserLoginDubboService;
+	@Override
+	public PageInfo<TbUserLogin> getUserLoginList(String keyword, int pageSize, int pageNum, String sort, String sortOrder,
+			Date startDate, Date endDate,String username) {
+		
+		return tbUserLoginDubboService.getUserLoginList(keyword,pageSize,pageNum,sort,sortOrder,startDate,endDate,username);
+	}
+	@Override
+	public MessageObject deleteUserLoginByIds(String ids) {
+		MessageObject mo = new MessageObject();
+		int ok = 0;
+		 ok = tbUserLoginDubboService.deleteUserLoginByIds(ids); 
+		mo.setCode(ok);
+	    if(ok==1) {
+	    	mo.setMsg("É¾³ý³É¹¦");
+	    }else {
+	    	mo.setMsg("É¾³ýÊ§°Ü");
+	    }
+		return mo;
+	}
+	@Override
+	public VisitorPage selectVisitorPageByDate() {
+		return null;
+	}
+
+}

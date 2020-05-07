@@ -1,0 +1,65 @@
+package com.weigo.visitor.service.impl;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageInfo;
+import com.weigo.commons.pojo.MessageObject;
+import com.weigo.commons.pojo.VisitorPage;
+import com.weigo.commons.pojo.VisitorPageMessage;
+import com.weigo.dubbo.visitor.service.TbUserLoginDubboService;
+import com.weigo.pojo.TbUserLogin;
+import com.weigo.visitor.service.TbUserLoginService;
+@Service
+public class TbUserLoginServiceImpl implements TbUserLoginService {
+    @Autowired
+     private TbUserLoginDubboService tbUserLoginDubboService;
+	@Override
+	public PageInfo<TbUserLogin> getUserLoginList(String keyword, int pageSize, int pageNum, String sort, String sortOrder,
+			Date startDate, Date endDate,String username) {
+		
+		return tbUserLoginDubboService.getUserLoginList(keyword,pageSize,pageNum,sort,sortOrder,startDate,endDate,username);
+	}
+	@Override
+	public MessageObject deleteUserLoginByIds(String ids) {
+		MessageObject mo = new MessageObject();
+		int ok = 0;
+		 ok = tbUserLoginDubboService.deleteUserLoginByIds(ids); 
+		mo.setCode(ok);
+	    if(ok==1) {
+	    	mo.setMsg("删除成功");
+	    }else {
+	    	mo.setMsg("删除失败");
+	    }
+		return mo;
+	}
+	@Override
+	public VisitorPage selectVisitorPageByDate() {
+		VisitorPage visitorPage = new VisitorPage();
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(new Date());
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE,0);
+		calendar.set(Calendar.SECOND,0);
+		calendar.set(Calendar.DAY_OF_MONTH,calendar.get(Calendar.DAY_OF_MONTH)-7);
+		List<VisitorPageMessage> lsitValue = new ArrayList<>();
+		for(int i=0;i<7;i++) {
+			VisitorPageMessage v = new VisitorPageMessage();
+			Date time = calendar.getTime();
+			Long  count = tbUserLoginDubboService.selectUserLoginCountByDate(time);
+			v.setCount(count);
+			v.setNamePage(calendar.get(Calendar.MONDAY)+1+"月"+calendar.get(Calendar.DAY_OF_MONTH)+"日");
+			calendar.set(Calendar.DAY_OF_MONTH,calendar.get(Calendar.DAY_OF_MONTH)+1);
+			lsitValue.add(v);
+		}
+		visitorPage.setValues(lsitValue);
+		return null;
+	}
+
+}

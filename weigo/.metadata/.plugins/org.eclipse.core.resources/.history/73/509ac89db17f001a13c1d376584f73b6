@@ -1,0 +1,14 @@
+package com.weigo.commons.pojo;
+
+import java.util.List;
+
+public class VisitorPage {
+	private List<VisitorPageMessage> list01 ; 
+	private List<VisitorPageMessage> list02 ; 
+	private List<VisitorPageMessage> list03 ; 
+	private List<VisitorPageMessage> list04 ; 
+	private List<VisitorPageMessage> list05 ; 
+	private List<VisitorPageMessage> list06 ; 
+	private List<VisitorPageMessage> list07 ; 
+    
+}

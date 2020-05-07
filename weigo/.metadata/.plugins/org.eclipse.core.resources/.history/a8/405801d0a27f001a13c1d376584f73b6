@@ -1,0 +1,7 @@
+package com.weigo.commons.pojo;
+
+public class VisitorPageMessage {
+	private String namePage;
+	private Long count;
+    
+}

@@ -1,0 +1,17 @@
+package com.weigo.dubbo.visitor.service;
+
+import java.util.Date;
+
+import com.github.pagehelper.PageInfo;
+import com.weigo.pojo.TbUserLogin;
+
+public interface TbUserLoginDubboService {
+
+	PageInfo<TbUserLogin> getUserLoginList(String keyword, int pageSize, int pageNum, String sort, String sortOrder,
+			Date startDate, Date endDate,String username);
+
+	int deleteUserLoginByIds(String ids);
+
+	Long selectUserLoginCountByDate(Date time);
+
+}
