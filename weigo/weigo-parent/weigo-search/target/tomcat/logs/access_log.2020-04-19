@@ -1,3 +1,0 @@
-0:0:0:0:0:0:0:1 - - [19/Apr/2020:19:33:11 +0800] "GET /solr/insertItems HTTP/1.1" 200 11 http-bio-8083-exec-2 1391
-0:0:0:0:0:0:0:1 - - [19/Apr/2020:19:33:12 +0800] "GET /favicon.ico HTTP/1.1" 404 949 http-bio-8083-exec-3 782
-0:0:0:0:0:0:0:1 - - [19/Apr/2020:19:34:08 +0800] "GET /solr/insertItems?ids=158729294175128 HTTP/1.1" 200 11 http-bio-8083-exec-6 3438

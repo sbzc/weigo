@@ -1,8 +1,0 @@
-ftpclient.host = 192.168.142.131
-ftpclient.port = 21
-ftpclient.username = ftpuser
-ftpclient.password = ftpuser
-ftpclient.basepath = /home/ftpuser
-ftpclient.filepath = /
-
-solr.url=http://47.103.218.192:8081/solr/

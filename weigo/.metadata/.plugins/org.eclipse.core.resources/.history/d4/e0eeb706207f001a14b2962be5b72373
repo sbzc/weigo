@@ -1,7 +1,0 @@
-package com.weigo.visitor.service;
-
-public interface TbVisitorService {
-
-	void insertVisitor(String managepage);
-
-}
